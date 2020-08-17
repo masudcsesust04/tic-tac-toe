@@ -1,0 +1,36 @@
+version: '3.1'
+
+services:
+  pg:
+    image: postgres:12.1-alpine
+    restart: always
+    env_file:
+      - .env.pg
+    ports:
+      - 5432:5432
+    volumes:
+      - ./pg-data:/var/lib/postgresql/data
+
+  backend:
+    image: masudcsesust04/tictactoe-backend:latest
+    restart: always
+    env_file:
+      - .env.backend
+    ports:
+      - 5000:5000
+    depends_on:
+      - pg
+
+  frontend:
+    image: masudcsesust04/tictactoe-frontend:latest
+    restart: always
+    environment:
+      CI: 'true'
+      REACT_APP_PROXY_HOST: http://backend:5000
+    ports:
+      - 3000:3000
+    depends_on:
+      - backend
+    links:
+      - backend
+
